@@ -92,4 +92,3 @@
                  ((r-eval "mean(iris$Sepal.Width)") 0)))))
 
 (use-fixtures :once jri-engine-fixture)
-

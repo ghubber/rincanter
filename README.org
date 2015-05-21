@@ -4,7 +4,7 @@ Welcome to Rincanter!
 
 * About
 
-  Rincanter is a [[http://clojure.org/][Clojure]] and [[http://data-sorcery.org/][Incanter]] wrapper around the 
+  Rincanter is a [[http://clojure.org/][Clojure]] and [[http://data-sorcery.org/][Incanter]] wrapper around the
   Rosuda [[http://www.rforge.net/rJava/][JRIEngine Java/R bridge]].
   The hope is to allow easy access to an embedded R
   engine from Incanter. It also offers translation between
@@ -12,13 +12,13 @@ Welcome to Rincanter!
   [[http://data-sorcery.org/][Incanter]] dataset.
 
 * Installation
-  
+
 ** Install Leiningen
    Rincanter uses [[http://github.com/technomancy/leiningen][Leiningen]] (currently using version 2) to manage its dependencies on Clojure,
    Incanter, and Rosuda JRI components. You will need to install
    [[http://github.com/technomancy/leiningen][Leiningen]] following the instructions on its
    [[http://github.com/technomancy/leiningen][project page]].
-  
+
 
 ** Install R for your platform
 
@@ -26,7 +26,7 @@ Welcome to Rincanter!
    document, but R is well supported on most platforms, and has great
    documentation: [[http://cran.r-project.org/][R Project Page]]
 
-   
+
 ** make sure r_HOME is set.
    On some platforms or installations, you may also need to set the
    environment variable R_HOME. The value you use for R_HOME will
@@ -34,21 +34,21 @@ Welcome to Rincanter!
    values for setting R_HOME in the shell and in emacs for Mac OS X:
 
    shell:
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
   R_HOME=/Library/Frameworks/R.framework/Resources; export R_HOME
 #+END_EXAMPLE
 
   You can also set this in one of your .profile files to ensure that
-  it is always set in your shell. 
+  it is always set in your shell.
 
   For emacs, in your scratch buffer, enter the elisp form:
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
   (setenv "R_HOME" "/Library/Frameworks/R.framework/Resources")
 #+END_EXAMPLE
 
   Then, go to the end of that line and execute the key-command:
 
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
   C-x C-e
 #+END_EXAMPLE
 
@@ -68,7 +68,7 @@ Welcome to Rincanter!
 
 
 ** Download and Install the rosuda JRI and REngine components
-This is a bit archaic.  Rosuda seems to compile against the version of R installed on 
+This is a bit archaic.  Rosuda seems to compile against the version of R installed on
 your system so we can't distribute the JARs.  You need to build two JARs, and one native
 lib and make them available to RIncanter.
 
@@ -76,27 +76,29 @@ lib and make them available to RIncanter.
 *** The Native Library
 Staring in the rincater base directory
 
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
    mkdir external
-   cd external 
+   cd external
    svn co svn://svn.rforge.net/org/trunk/rosuda/REngine
    svn co svn://svn.rforge.net/org/trunk/rosuda/JRI
    cd JRI
+   # removal of -ljvm was necessary on Ubuntu 14.04, flag doesn't seem to be necessary anymore
+   sed -i "s/-ljvm//" ./configure
    ./configure
    make
 #+END_EXAMPLE
 
    You will now have a jri native library file in this directory. Depending on
-   your platform it will have a name like: 
+   your platform it will have a name like:
 
    - libjri.so (linux)
-   - libjri.jnilib (Mac OS X) 
+   - libjri.jnilib (Mac OS X)
    - jri.dll (Windows)
 
    You need to make this native lib available to RIncanter which is done
 by putting in the appropriate directory.  For instance on a 32 bit linux:
 
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
   mkdir ../../target/
   mkdir ../../target/native/
   mkdir ../../target/native/linux/
@@ -109,14 +111,14 @@ where <os> is probably one of win,macosx,linux and <arch> is x86 or x86_64 if
 you are on 64bit.
 
 *** Install the JARs
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
   cd ../REngine
   make
 #+END_EXAMPLE
 
   You will now have an REngine.jar file in this directory.
 
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
   cd JRI # this is a child dir of REngine, different from the JRI dir above
   make
 #+END_EXAMPLE
@@ -124,10 +126,10 @@ you are on 64bit.
   You will now have an JRIEngine.jar file in this directory.
 
   Now you need to make these JARs available to leiningen, either by installing them into the local repository
-or nexus.  If you have maven handy you can install them to your local repo with 
+or nexus.  If you have maven handy you can install them to your local repo with
 these commands
 
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
 mvn install:install-file -Dfile=./JRIEngine.jar -DartifactId=JRIEngine -Dversion=0.5-5 -DgroupId=JRIEngine -Dpackaging=jar
 cd ..
 mvn install:install-file -Dfile=./REngine.jar -DartifactId=REngine -Dversion=0.5-5 -DgroupId=REngine -Dpackaging=jar
@@ -140,18 +142,18 @@ general instructions.
 ** Test and Run
    Now you are ready to test and run Rincanter.  Test
 
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
 lein test
 #+END_EXAMPLE
 
 To get an interactive session going by starting up emacs (making sure that R_HOME is visible) and then using nrepl
 
-#+BEGIN_EXAMPLE 
+#+BEGIN_EXAMPLE
 emacs project.clj
 #+END_EXAMPLE
 
 and then M-x nrepl-jack-in.
- 
+
 * Example Usage
   The main entry points are the functions:
   - [[http://jolby.github.com/rincanter/com.evocomputing.rincanter-api.html#com.evocomputing.rincanter/r-eval][r-eval]]
@@ -169,10 +171,10 @@ You can play around with Clojure/Incanter and R in the same REPL session:
    ;;eval's the iris dataframe object, converts into
    ;;incanter dataset
    (r-eval "iris")
- 
+
    ;;create vector on R side
    (r-eval "vec_in_r = c(1,2,3)")
-   
+
    ;;now retrieve it, converting to Clojure vector
    (r-get "vec_in_r")
 #+END_EXAMPLE
@@ -182,11 +184,11 @@ plotting:
    (use '(com.evocomputing rincanter))
 
    (r-eval "data(iris)")
-   
+
    ;;initialize the R graphics device for your system:
    ;;For Mac OS X
    (r-eval "quartz()")
-   ;;windows: 
+   ;;windows:
    (r-eval "windows()")
    ;;unix/linux
    (r-eval "x11()")
@@ -196,7 +198,7 @@ plotting:
    ;;alter this existing plot
    (r-eval "title(main = \"Iris Sepal Measurements\")")
 #+END_EXAMPLE
- 
+
 ** with-r-eval
 Using with-r-eval, it is even easier. Within this form, all forms
 enclosed in parenthesis are evaluated as normal Clojure forms, strings
@@ -206,16 +208,16 @@ are evaluated in R using r-eval:
 #+BEGIN_EXAMPLE clojure
    (use '(com.evocomputing rincanter))
 
-   (with-r-eval 
+   (with-r-eval
      "data(iris)"
 
      ;;eval's the iris dataframe object, converts into
      ;;incanter dataset
      "iris"
- 
+
      ;;create vector on R side
      "vec_in_r = c(1,2,3)"
-   
+
      ;;now retrieve it, converting to Clojure vector
      (r-get "vec_in_r"))
 #+END_EXAMPLE
