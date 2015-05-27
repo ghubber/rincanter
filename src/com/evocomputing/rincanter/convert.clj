@@ -161,6 +161,7 @@ otherwise"
 (def ^:dynamic *object-type-to-primitive-type-map*
      {java.lang.Byte Byte/TYPE
       java.lang.Integer Integer/TYPE
+      java.lang.Long Double/TYPE ;; R has no 64 bit integer type
       java.lang.Float Float/TYPE
       java.lang.Double Double/TYPE})
 
@@ -178,6 +179,7 @@ otherwise"
         (:r-type (meta obj))) (:r-type (meta obj))
    (#{"[B" "[Ljava.lang.Byte;"} (.getName (class obj))) ::byte-array
    (#{"[I" "[Ljava.lang.Integer;"} (.getName (class obj))) ::int-array
+   (#{"[L" "[Ljava.lang.Long;"} (.getName (class obj))) ::long-array
    (#{"[D" "[Ljava.lang.Double;"} (.getName (class obj))) ::double-array
    (= "[Ljava.lang.String;" (.getName (class obj))) ::string-array
    ;;These must go after the array tests or infinite recursion will
@@ -210,6 +212,10 @@ otherwise"
   (REXPInteger. (int-array obj) (r-atts-raw obj)))
 
 (defmethod to-r ::int-array
+  [obj]
+  (REXPInteger. obj (r-atts-raw obj)))
+
+(defmethod to-r ::long-array
   [obj]
   (REXPInteger. obj (r-atts-raw obj)))
 
@@ -264,6 +270,19 @@ otherwise"
       (REXPGenericVector.
        (RList. colarr names)
        (:r-atts (meta dataset))))))
+
+(defn r-dataframe [dataset]
+  (with-data dataset
+    (let [names (into-array String (map name (col-names dataset)))
+          col-meta (or (:col-meta (meta dataset)) {})
+          cols (into [] (map #(let [col ($ %)]
+                                (with-meta col (col-meta (aget names %))))
+                             (range (alength names))))
+          colarr (into-array REXP (map #(to-r %) cols))]
+      (REXPGenericVector.
+       (RList. colarr names)
+       (:r-atts (meta dataset))))))
+
 
 (defmethod to-r ::nil
   [obj]

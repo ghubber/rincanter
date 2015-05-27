@@ -167,3 +167,17 @@ repository or the master CRAN repository"
 (defmethod print-method org.rosuda.REngine.REXP [o w]
   (.write w (str "#=(org.rosuda.REngine.REXP. " (.toString o) ")")))
 
+
+(comment
+  ;; TODO
+  ;; - bijection for dataframe
+  ;; - redirect all R output to JVM by default
+  (r-set! "foo" (r-dataframe (dataset [:foo :bar] [[0 1] [2 3]])))
+  (r-try-parse-eval "bar = data.frame(foo)")
+
+  (RList. "foo" 2)
+  (r-inspect "bar")
+
+  (r-try-parse-eval "1")
+  (to-r [1 2 3])
+)
